@@ -29,6 +29,7 @@ public class GameofSchelling extends JFrame {
   private static int agent = 6000;   //エージェントの総数
 
   ArrayList<Ag> ag = new ArrayList<Ag>(); //エージェントを格納するリストクラス
+  ArrayList<ArrayList<Integer>> pi = new ArrayList<ArrayList<Integer>>(); //格子のデータ
 
   BiFunction<Integer, Integer, Integer> division = (n, g) -> {return n / g;};
   Function<Integer, Integer> randInt = (d) -> {return random.nextInt(d-1)+1;};  //乱数生成
@@ -41,7 +42,7 @@ public class GameofSchelling extends JFrame {
   //メイン・クラスのコンストラクタ
   public GameofSchelling() {
     //Windowの呼び出し
-    setSize(windowX+40, windowY+100);
+    setSize(windowX+30, windowY+90);
     setTitle("シェリングのゲーム");
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setResizable(false);
@@ -82,6 +83,14 @@ public class GameofSchelling extends JFrame {
       }
     });
 
+    //格子空間の属性値を初期化
+    for(int i = 0; i < division.apply(windowX, gridSize)+1; i++) {
+      pi.add(new ArrayList<Integer>());
+      for(int j = 0; j < division.apply(windowY, gridSize)+1; j++) {
+        pi.get(i).add(0);
+      }
+    }
+
     //エージェントの配置
     ArrayList<Integer> x = new ArrayList<Integer>();
     ArrayList<Integer> y = new ArrayList<Integer>();
@@ -93,15 +102,23 @@ public class GameofSchelling extends JFrame {
     for (int i = 0; i < agent; i++) {
       Integer ix = x.get(random.nextInt(division.apply(windowX, gridSize)));
       Integer iy = y.get(random.nextInt(division.apply(windowY, gridSize)));
-      ag.add(new Ag(random.nextInt(2), ix, iy));
+      ag.add(new Ag(random.nextInt(2)+1, ix, iy));
     }
+
+    //属性値の格納
+    for(Ag agj : ag) pi.get(agj.x).set(agj.y, agj.gj);
+
+    //空間内に存在する全エージェントの属性値を計算する
+
+
+    System.out.println(pi);
 
   }
 
   //エージェントの色
   public void colorList(int gj) {
-    if(gj == 0) graphicsBuff.setColor(Color.red);
-    else        graphicsBuff.setColor(Color.blue);
+    if(gj == 1) graphicsBuff.setColor(Color.red);
+    if(gj == 2) graphicsBuff.setColor(Color.blue);
   }
 
   //エージェントのモデリング
@@ -127,6 +144,23 @@ public class GameofSchelling extends JFrame {
       graphicsBuff.fillRect(this.x*gridSize, this.y*gridSize, gridSize, gridSize);
     }
 
+    //x軸の値セット
+    public void setterX(int x) {
+      this.x = x;
+    }
+
+    //y軸の値セット
+    public void setterY(int y) {
+      this.y = y;
+    }
+
+  }
+
+  //シェリングのゲームのアルゴリズム
+  public void schellingAlgorithm(int x, int y) {
+    //周辺近傍の属性値gjを計算し「好ましさ」を計算する
+    int sk = 0;
+
   }
 
   //空間のモデリング
@@ -145,7 +179,7 @@ public class GameofSchelling extends JFrame {
       //描画
       super.paint(graphics);
       graphicsBuff.setColor(Color.white);
-      graphicsBuff.fillRect(0, 0, windowX+20, windowY+20);
+      graphicsBuff.fillRect(0, 0, windowX+20, windowY+30);
 
       for(Ag a : ag) a.draw();  //エージェントの描画
       gridDraw();               //グリッドの描画
