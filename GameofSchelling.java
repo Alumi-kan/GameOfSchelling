@@ -26,7 +26,10 @@ public class GameofSchelling extends JFrame {
   private static int windowX = 650;
   private static int windowY = 650;
   private static int gridSize = 10;
-  private static int agent = 6000;   //エージェントの総数
+  private static int agent = 2000;   //エージェントの総数
+  private static int rgj = 0;
+  private static int bgj = 0;
+  private static double theta = 1 / 3;  //閾値の計算
 
   ArrayList<Ag> ag = new ArrayList<Ag>(); //エージェントを格納するリストクラス
   ArrayList<ArrayList<Integer>> pi = new ArrayList<ArrayList<Integer>>(); //格子のデータ
@@ -102,16 +105,14 @@ public class GameofSchelling extends JFrame {
     for (int i = 0; i < agent; i++) {
       Integer ix = x.get(random.nextInt(division.apply(windowX, gridSize)));
       Integer iy = y.get(random.nextInt(division.apply(windowY, gridSize)));
-      ag.add(new Ag(random.nextInt(2)+1, ix, iy));
+      int gj = random.nextInt(2)+1;
+      if(gj == 1) rgj++;
+      if(gj == 2) bgj++;
+      ag.add(new Ag(gj, ix, iy));
     }
 
     //属性値の格納
     for(Ag agj : ag) pi.get(agj.x).set(agj.y, agj.gj);
-
-    //空間内に存在する全エージェントの属性値を計算する
-
-
-    System.out.println(pi);
 
   }
 
@@ -157,10 +158,31 @@ public class GameofSchelling extends JFrame {
   }
 
   //シェリングのゲームのアルゴリズム
-  public void schellingAlgorithm(int x, int y) {
-    //周辺近傍の属性値gjを計算し「好ましさ」を計算する
-    int sk = 0;
+  public void schellingAlgorithm(int x, int y, int gj) {
+    //エージェントの属性値に合わせて合計属性値を決定する
+    int agj = 0, wgj = 0, sk = 0;
+    if (gj == 1)  agj = rgj;
+    else          agj = bgj;
 
+    //8近傍の属性値の合計を計算する
+    if(pi.get(x).get(y-1) == gj && (y-1) < 0) wgj += pi.get(x).get(y-1);
+    if(pi.get(x+1).get(y-1) == gj && (x+1) > division.apply(windowX, gridSize) && (y-1) < 0) wgj += pi.get(x+1).get(y-1);
+    if(pi.get(x+1).get(y) == gj && (x+1) > division.apply(windowX, gridSize)) wgj += pi.get(x+1).get(y);
+    if(pi.get(x+1).get(y+1) == gj && (x+1) > division.apply(windowX, gridSize) && (y+1) > division.apply(windowY, gridSize)) wgj += pi.get(x+1).get(y+1);
+    if(pi.get(x).get(y+1) == gj && (y+1) > division.apply(windowY, gridSize)) wgj += pi.get(x).get(y+1);
+    if(pi.get(x-1).get(y+1) == gj && (x-1) < 0 && (y+1) > division.apply(windowY, gridSize)) wgj += pi.get(x-1).get(y+1);
+    if(pi.get(x-1).get(y) == gj && (x-1) < 0) wgj += pi.get(x-1).get(y);
+    if(pi.get(x-1).get(y-1) == gj && (x-1) < 0 && (y-1) < 0) wgj += pi.get(x-1).get(y-1);
+
+    //周辺近傍の属性値gjを計算し「好ましさ」skを計算する
+    sk = division.apply(wgj, agj);
+
+    //skが閾値以下か以上かで行動するかしないかを決定する
+    if(theta < sk) {
+
+    } else {
+      
+    }
   }
 
   //空間のモデリング
